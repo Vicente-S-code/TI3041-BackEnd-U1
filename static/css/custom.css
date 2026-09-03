@@ -1,0 +1,76 @@
+/* 
+ * VentaControl Pro - Custom CSS & Glassmorphism Styles
+ * ====================================================
+ * Complementa Tailwind CSS con efectos de glassmorphism,
+ * transiciones personalizadas y reglas de impresión térmica/A4 para boletas.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #F8FAFC;
+    color: #0F172A;
+}
+
+/* Efectos Glassmorphism modernos */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(241, 245, 249, 0.9);
+}
+
+.glass-nav {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Animación de entrada suave para Toasts y modales */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-down {
+    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Reglas de impresión para el módulo de Boleta Electrónica */
+@media print {
+    /* Ocultar barra de navegación, botones y pie de página en la impresión */
+    nav, header, .no-print, button, .sidebar, #toast-container {
+        display: none !important;
+    }
+
+    body {
+        background-color: white !important;
+        color: black !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .boleta-container {
+        box-shadow: none !important;
+        border: 1px dashed #94a3b8 !important;
+        width: 100% !important;
+        max-width: 480px !important;
+        margin: 0 auto !important;
+        padding: 16px !important;
+    }
+}

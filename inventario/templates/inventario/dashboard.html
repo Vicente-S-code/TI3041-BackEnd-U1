@@ -1,0 +1,363 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Dashboard Gerencial{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <!-- ENCABEZADO DE BIENVENIDA Y ACCIONES RÁPIDAS -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 rounded-3xl p-8 text-white shadow-xl shadow-blue-500/15 relative overflow-hidden">
+        <!-- Decoración abstracta de fondo -->
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute right-40 top-0 w-32 h-32 bg-cyan-400/20 rounded-full blur-xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-2">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold tracking-wide uppercase border border-white/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Sistema Operativo en Tiempo Real</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Panel de Control de Ventas
+            </h1>
+            <p class="text-blue-100 text-sm sm:text-base max-w-xl">
+                Monitoreo integral de existencias, flujo de caja del día y gestión de clientes en una sola plataforma unificada.
+            </p>
+        </div>
+
+        <div class="relative z-10 flex flex-wrap gap-3">
+            <a href="{% url 'venta_pos' %}" 
+               class="inline-flex items-center space-x-2 px-5 py-3 rounded-2xl bg-white text-blue-700 font-bold text-sm shadow-lg shadow-black/10 hover:bg-blue-50 hover:scale-105 active:scale-95 transition-all duration-300">
+                <i data-lucide="zap" class="w-4 h-4 text-amber-500 fill-amber-500"></i>
+                <span>Iniciar Venta Rápida</span>
+            </a>
+            <a href="{% url 'producto_create' %}" 
+               class="inline-flex items-center space-x-2 px-5 py-3 rounded-2xl bg-white/15 backdrop-blur-md text-white font-semibold text-sm border border-white/20 hover:bg-white/25 hover:scale-105 active:scale-95 transition-all duration-300">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Nuevo Producto</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 TARJETAS ESTADÍSTICAS PRINCIPALES (KPIS) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- KPI 1: PRODUCTOS REGISTRADOS -->
+        <div class="glass-panel p-6 rounded-3xl shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 group border border-slate-200/80">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Productos Registrados</p>
+                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">{{ total_productos }}</h3>
+                    <p class="text-xs text-blue-600 font-medium mt-1 flex items-center gap-1">
+                        <i data-lucide="package-check" class="w-3.5 h-3.5"></i>
+                        <span>En catálogo activo</span>
+                    </p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-inner">
+                    <i data-lucide="boxes" class="w-7 h-7"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 2: STOCK TOTAL ACUMULADO -->
+        <div class="glass-panel p-6 rounded-3xl shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 group border border-slate-200/80">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Stock Total</p>
+                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">{{ stock_total }}</h3>
+                    <p class="text-xs text-cyan-600 font-medium mt-1 flex items-center gap-1">
+                        <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                        <span>Unidades físicas en bodega</span>
+                    </p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-500 group-hover:text-white transition-all duration-300 shadow-inner">
+                    <i data-lucide="archive" class="w-7 h-7"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 3: VENTAS DEL DÍA -->
+        <div class="glass-panel p-6 rounded-3xl shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 group border border-slate-200/80">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Ventas del Día</p>
+                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">${{ monto_ventas_hoy|default:"0" }}</h3>
+                    <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                        <span>{{ cantidad_ventas_hoy }} boletas emitidas hoy</span>
+                    </p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-inner">
+                    <i data-lucide="banknote" class="w-7 h-7"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 4: CLIENTES HABITUALES -->
+        <div class="glass-panel p-6 rounded-3xl shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 group border border-slate-200/80">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Clientes Habituales</p>
+                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">{{ clientes_habituales }}</h3>
+                    <p class="text-xs text-indigo-600 font-medium mt-1 flex items-center gap-1">
+                        <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+                        <span>De {{ total_clientes }} clientes en total</span>
+                    </p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-inner">
+                    <i data-lucide="user-check" class="w-7 h-7"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN DE ACCESOS RÁPIDOS (BOTONES CON MICRO-ANIMACIONES) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <a href="{% url 'producto_create' %}" class="flex flex-col items-center justify-center p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-xl hover:scale-105 hover:border-blue-300 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                <i data-lucide="plus" class="w-6 h-6"></i>
+            </div>
+            <span class="font-bold text-sm text-slate-800">Registrar Producto</span>
+            <span class="text-xs text-slate-400 mt-0.5">Crear artículo</span>
+        </a>
+
+        <a href="{% url 'venta_pos' %}" class="flex flex-col items-center justify-center p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-xl hover:scale-105 hover:border-indigo-300 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+            </div>
+            <span class="font-bold text-sm text-slate-800">Nueva Venta</span>
+            <span class="text-xs text-slate-400 mt-0.5">Terminal POS</span>
+        </a>
+
+        <a href="{% url 'cliente_list' %}" class="flex flex-col items-center justify-center p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-xl hover:scale-105 hover:border-cyan-300 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                <i data-lucide="users-round" class="w-6 h-6"></i>
+            </div>
+            <span class="font-bold text-sm text-slate-800">Clientes</span>
+            <span class="text-xs text-slate-400 mt-0.5">Directorio y fidelidad</span>
+        </a>
+
+        <a href="{% url 'producto_list' %}" class="flex flex-col items-center justify-center p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-xl hover:scale-105 hover:border-emerald-300 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                <i data-lucide="table-properties" class="w-6 h-6"></i>
+            </div>
+            <span class="font-bold text-sm text-slate-800">Inventario</span>
+            <span class="text-xs text-slate-400 mt-0.5">Control de stock</span>
+        </a>
+    </div>
+
+    <!-- SECCIÓN INTERMEDIA: GRÁFICOS SIMULADOS TAILWIND + ALERTAS DE STOCK -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- GRÁFICO SIMULADO: ESTADO Y SALUD DEL INVENTARIO -->
+        <div class="lg:col-span-2 glass-panel p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Salud del Inventario</h3>
+                    <p class="text-xs text-slate-500">Distribución de artículos según disponibilidad física</p>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                    {{ total_productos }} Referencias
+                </span>
+            </div>
+
+            <!-- Gráfico de barras horizontales progresivas en Tailwind -->
+            <div class="space-y-4">
+                <!-- Stock Alto -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="flex items-center gap-1.5 text-emerald-700">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            Stock Alto (>20 unidades)
+                        </span>
+                        <span class="text-slate-600">{{ distribucion_stock.alto.conteo }} productos ({{ distribucion_stock.alto.pct }}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-3 rounded-full transition-all duration-1000" style="width: {{ distribucion_stock.alto.pct }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Stock Medio -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="flex items-center gap-1.5 text-amber-700">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            Stock Medio (6 a 20 unidades)
+                        </span>
+                        <span class="text-slate-600">{{ distribucion_stock.medio.conteo }} productos ({{ distribucion_stock.medio.pct }}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                        <div class="bg-gradient-to-r from-amber-500 to-yellow-400 h-3 rounded-full transition-all duration-1000" style="width: {{ distribucion_stock.medio.pct }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Stock Bajo -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="flex items-center gap-1.5 text-rose-700">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            Stock Crítico (≤5 unidades)
+                        </span>
+                        <span class="text-slate-600">{{ distribucion_stock.bajo.conteo }} productos ({{ distribucion_stock.bajo.pct }}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                        <div class="bg-gradient-to-r from-rose-500 to-pink-500 h-3 rounded-full transition-all duration-1000" style="width: {{ distribucion_stock.bajo.pct }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico analítico simulado de horas de actividad -->
+            <div class="pt-4 border-t border-slate-100">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Flujo Operativo de Ventas (Horas pico estimadas)</p>
+                <div class="flex items-end justify-between h-24 pt-4 px-2">
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 bg-blue-100 rounded-t-lg h-10"></div>
+                        <span class="text-[10px] text-slate-400 font-medium">09:00</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 bg-blue-200 rounded-t-lg h-14"></div>
+                        <span class="text-[10px] text-slate-400 font-medium">11:00</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 bg-blue-400 rounded-t-lg h-18"></div>
+                        <span class="text-[10px] text-slate-400 font-medium">13:00</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 bg-blue-600 rounded-t-lg h-22 shadow-md shadow-blue-500/20"></div>
+                        <span class="text-[10px] text-blue-600 font-bold">16:00</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 bg-indigo-500 rounded-t-lg h-20"></div>
+                        <span class="text-[10px] text-slate-400 font-medium">18:00</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 bg-cyan-400 rounded-t-lg h-12"></div>
+                        <span class="text-[10px] text-slate-400 font-medium">20:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL DE ALERTAS DE STOCK CRÍTICO -->
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-500"></i>
+                        <span>Alertas de Stock</span>
+                    </h3>
+                    <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
+                        {{ productos_bajo_stock|length }} Críticos
+                    </span>
+                </div>
+
+                {% if productos_bajo_stock %}
+                    <div class="divide-y divide-slate-100">
+                        {% for prod in productos_bajo_stock %}
+                            <div class="py-3 flex items-center justify-between">
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-800">{{ prod.nombre }}</h4>
+                                    <span class="text-xs text-slate-400 font-mono">Cod: {{ prod.codigo }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
+                                        {{ prod.stock }} unid.
+                                    </span>
+                                    <div class="mt-1">
+                                        <a href="{% url 'producto_update' prod.pk %}" class="text-[11px] text-blue-600 hover:underline font-semibold">
+                                            Reabastecer
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="py-12 text-center text-slate-400 space-y-2">
+                        <i data-lucide="shield-check" class="w-10 h-10 mx-auto text-emerald-500"></i>
+                        <p class="text-sm font-medium text-slate-600">¡Inventario óptimo!</p>
+                        <p class="text-xs">No hay productos en estado de stock crítico actualmente.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <a href="{% url 'producto_list' %}?estado=bajo" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs text-center transition block">
+                Ver todos los productos en alerta
+            </a>
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN INFERIOR: ÚLTIMAS VENTAS REGISTRADAS -->
+    <div class="glass-panel rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Últimas Transacciones Registradas</h3>
+                <p class="text-xs text-slate-500">Auditoría reciente de ventas y emisión de boletas</p>
+            </div>
+            <a href="{% url 'venta_list' %}" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <span>Ver historial completo</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50/70 text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-100">
+                    <tr>
+                        <th class="px-6 py-4">Boleta / Folio</th>
+                        <th class="px-6 py-4">Fecha y Hora</th>
+                        <th class="px-6 py-4">Cliente</th>
+                        <th class="px-6 py-4">Tipo</th>
+                        <th class="px-6 py-4 text-right">Monto Total</th>
+                        <th class="px-6 py-4 text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for v in ultimas_ventas %}
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-6 py-4 font-mono font-bold text-blue-600">
+                                {{ v.numero_boleta }}
+                            </td>
+                            <td class="px-6 py-4 text-slate-600">
+                                {{ v.fecha|date:"d/m/Y H:i" }}
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-slate-800">
+                                {{ v.cliente.nombre }}
+                                <span class="block text-xs font-mono text-slate-400">{{ v.cliente.rut }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if v.cliente.cliente_habitual %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        Habitual
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                        Ocasional
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-right font-extrabold text-slate-900">
+                                ${{ v.total }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="{% url 'venta_detail' v.pk %}" class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white text-xs font-semibold transition duration-200">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                    <span>Ver Boleta</span>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+                                No se han registrado ventas aún. Inicie una venta en el terminal POS.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

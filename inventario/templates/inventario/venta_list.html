@@ -1,0 +1,122 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Historial y Auditoría de Ventas{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- ENCABEZADO Y CONTROLES SUPERIORES -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+                <span>Historial de Ventas</span>
+                <span class="text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                    {{ total_transacciones }} Transacciones
+                </span>
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Auditoría de boletas emitidas, desglose tributario y reimpresión de comprobantes.
+            </p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'venta_pos' %}" 
+               class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-md shadow-blue-500/25 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Emitir Nueva Venta (POS)</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE RESUMEN DE VENTAS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="glass-panel p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Recaudación Total Acumulada</p>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">${{ total_recaudado }}</h3>
+                <p class="text-xs text-emerald-600 font-semibold mt-1">Total histórico registrado</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="wallet" class="w-6 h-6"></i>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Comprobantes Emitidos</p>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ total_transacciones }}</h3>
+                <p class="text-xs text-blue-600 font-semibold mt-1">Boletas válidas en base de datos</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i data-lucide="receipt-text" class="w-6 h-6"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE HISTORIAL DE VENTAS -->
+    <div class="glass-panel rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-200/80">
+                    <tr>
+                        <th class="px-6 py-4">Folio Boleta</th>
+                        <th class="px-6 py-4">Fecha y Hora</th>
+                        <th class="px-6 py-4">Cliente</th>
+                        <th class="px-6 py-4">RUT</th>
+                        <th class="px-6 py-4">Modalidad</th>
+                        <th class="px-6 py-4 text-right">Total ($)</th>
+                        <th class="px-6 py-4 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for v in ventas %}
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="px-6 py-4 font-mono font-bold text-blue-600">
+                                {{ v.numero_boleta }}
+                            </td>
+                            <td class="px-6 py-4 text-slate-600">
+                                {{ v.fecha|date:"d/m/Y H:i" }}
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-slate-800">
+                                {{ v.cliente.nombre }}
+                            </td>
+                            <td class="px-6 py-4 font-mono text-xs text-slate-500">
+                                {{ v.cliente.rut }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if v.cliente.cliente_habitual %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        Habitual
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                        Boleta Rápida
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-right font-extrabold text-slate-900">
+                                ${{ v.total }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="{% url 'venta_detail' v.pk %}" 
+                                   class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white text-xs font-semibold transition duration-200 shadow-2xs">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                                    <span>Ver / Imprimir</span>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                                <i data-lucide="inbox" class="w-12 h-12 mx-auto text-slate-300 mb-2"></i>
+                                <p class="text-base font-semibold text-slate-600">No se han registrado ventas todavía.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

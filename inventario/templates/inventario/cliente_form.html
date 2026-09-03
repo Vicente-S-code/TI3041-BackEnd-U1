@@ -1,0 +1,199 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Registro de Clientes{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+
+    <!-- BREADCRUMB -->
+    <div class="flex items-center justify-between">
+        <a href="{% url 'cliente_list' %}" class="inline-flex items-center space-x-2 text-sm font-semibold text-slate-500 hover:text-blue-600 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Volver al Directorio de Clientes</span>
+        </a>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-800">
+            Fidelización & Clientes
+        </span>
+    </div>
+
+    <!-- TARJETA ELEVADA DEL FORMULARIO CON GLASSMORPHISM -->
+    <div class="glass-panel rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-200/80 relative overflow-hidden">
+        
+        <div class="flex items-center space-x-4 mb-8">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                <i data-lucide="user-plus" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Registro de Cliente</h1>
+                <p class="text-sm text-slate-500">Gestión de compradores para emisión de boletas y programa de clientes frecuentes.</p>
+            </div>
+        </div>
+
+        <form method="post" id="form-cliente" novalidate class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-medium flex items-center gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+                    <div>{{ form.non_field_errors }}</div>
+                </div>
+            {% endif %}
+
+            <!-- SWITCH ELEGANTE: ¿DESEA REGISTRARSE COMO CLIENTE HABITUAL? -->
+            <div class="p-5 rounded-2xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/80 flex items-center justify-between gap-4">
+                <div class="space-y-0.5">
+                    <label for="id_cliente_habitual" class="text-sm font-extrabold text-slate-900 flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+                        <span>¿Desea registrarse como cliente habitual?</span>
+                    </label>
+                    <p class="text-xs text-slate-500">
+                        Active esta opción para guardar datos completos y acumular historial de compras.
+                    </p>
+                </div>
+
+                <!-- Control Switch Elegante tipo iOS/Tailwind -->
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" name="cliente_habitual" id="id_cliente_habitual" class="sr-only peer" {% if form.cliente_habitual.value %}checked{% endif %}>
+                    <div class="w-14 h-7 bg-slate-300 peer-focus:outline-hidden peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+
+            <!-- CAMPO OBLIGATORIO GENERAL: RUT -->
+            <div class="space-y-1.5">
+                <label for="{{ form.rut.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    RUT del Cliente <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative rounded-2xl shadow-xs">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="credit-card" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" name="{{ form.rut.name }}" id="{{ form.rut.id_for_label }}"
+                           value="{{ form.rut.value|default:'' }}"
+                           placeholder="Ej: 12.345.678-9 o 12345678-K"
+                           required
+                           class="w-full pl-10 pr-4 py-3 rounded-2xl border {% if form.rut.errors %}border-rose-300 bg-rose-50/40 text-rose-900{% else %}border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500{% endif %} text-sm font-medium transition-all duration-200 uppercase">
+                </div>
+                {% if form.rut.errors %}
+                    <p class="text-xs text-rose-600 font-semibold flex items-center gap-1 mt-1">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                        {{ form.rut.errors.0 }}
+                    </p>
+                {% else %}
+                    <p class="text-[11px] text-slate-400">Requerido por normativa para la emisión de boleta electrónica.</p>
+                {% endif %}
+            </div>
+
+            <!-- CONTENEDOR DE CAMPOS DE CLIENTE HABITUAL (SE MUESTRA/OCULTA DINÁMICAMENTE) -->
+            <div id="seccion-habitual" class="space-y-6 pt-2 border-t border-slate-100 transition-all duration-300">
+                
+                <div class="flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-wider bg-blue-50 p-2.5 rounded-xl border border-blue-100">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                    <span>Información de contacto para cliente habitual</span>
+                </div>
+
+                <!-- CAMPO: NOMBRE COMPLETO -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.nombre.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                        Nombre Completo <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative rounded-2xl shadow-xs">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text" name="{{ form.nombre.name }}" id="{{ form.nombre.id_for_label }}"
+                               value="{{ form.nombre.value|default:'' }}"
+                               placeholder="Ej: Carolina Andrea Morales Silva"
+                               class="w-full pl-10 pr-4 py-3 rounded-2xl border {% if form.nombre.errors %}border-rose-300 bg-rose-50/40 text-rose-900{% else %}border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500{% endif %} text-sm font-medium transition-all duration-200">
+                    </div>
+                    {% if form.nombre.errors %}
+                        <p class="text-xs text-rose-600 font-semibold flex items-center gap-1 mt-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                            {{ form.nombre.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- GRID: CORREO Y TELÉFONO -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    
+                    <!-- CAMPO: CORREO ELECTRÓNICO -->
+                    <div class="space-y-1.5">
+                        <label for="{{ form.correo.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Correo Electrónico (Opcional)
+                        </label>
+                        <div class="relative rounded-2xl shadow-xs">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </div>
+                            <input type="email" name="{{ form.correo.name }}" id="{{ form.correo.id_for_label }}"
+                                   value="{{ form.correo.value|default:'' }}"
+                                   placeholder="cliente@ejemplo.cl"
+                                   class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium transition-all duration-200">
+                        </div>
+                    </div>
+
+                    <!-- CAMPO: TELÉFONO / WHATSAPP -->
+                    <div class="space-y-1.5">
+                        <label for="{{ form.telefono.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Teléfono / Contacto (Opcional)
+                        </label>
+                        <div class="relative rounded-2xl shadow-xs">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                            </div>
+                            <input type="text" name="{{ form.telefono.name }}" id="{{ form.telefono.id_for_label }}"
+                                   value="{{ form.telefono.value|default:'' }}"
+                                   placeholder="+56 9 8765 4321"
+                                   class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium transition-all duration-200">
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- BOTONES DE GUARDADO -->
+            <div class="pt-6 border-t border-slate-100 flex items-center justify-end space-x-3">
+                <a href="{% url 'cliente_list' %}" class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-sm transition">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center space-x-2 px-7 py-3 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    <span>Guardar Cliente</span>
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Control dinámico del switch de cliente habitual
+    const switchHabitual = document.getElementById('id_cliente_habitual');
+    const seccionHabitual = document.getElementById('seccion-habitual');
+    const inputNombre = document.getElementById('{{ form.nombre.id_for_label }}');
+
+    function actualizarVisibilidadCampos() {
+        if (switchHabitual.checked) {
+            seccionHabitual.style.display = 'block';
+            if (inputNombre && inputNombre.value.trim() === 'Cliente Ocasional') {
+                inputNombre.value = '';
+            }
+        } else {
+            seccionHabitual.style.display = 'none';
+        }
+    }
+
+    if (switchHabitual && seccionHabitual) {
+        // Inicializar estado según el valor actual
+        actualizarVisibilidadCampos();
+        // Escuchar cambios del switch
+        switchHabitual.addEventListener('change', actualizarVisibilidadCampos);
+    }
+</script>
+{% endblock %}

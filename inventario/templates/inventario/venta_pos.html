@@ -1,0 +1,434 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Terminal Punto de Venta (POS){% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- ENCABEZADO SUPERIOR -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+                <span class="p-2 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                </span>
+                <span>Terminal Punto de Venta (POS)</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Seleccione los productos del catálogo, gestione las cantidades y emita la boleta de venta.
+            </p>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Caja Activa
+            </span>
+            <a href="{% url 'dashboard' %}" class="px-3.5 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                Salir del POS
+            </a>
+        </div>
+    </div>
+
+    <!-- ESTRUCTURA PRINCIPAL DUAL: CATÁLOGO (IZQUIERDA) Y CARRO/CHECKOUT (DERECHA) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- ============================================================== -->
+        <!-- PANEL IZQUIERDO: PRODUCTOS DISPONIBLES (7 COLUMNAS) -->
+        <!-- ============================================================== -->
+        <div class="lg:col-span-7 space-y-4">
+
+            <!-- Buscador en tiempo real para el cajero -->
+            <div class="glass-panel p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" id="pos-buscador" 
+                           placeholder="Buscar por nombre o código..."
+                           class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <span class="text-xs font-semibold text-slate-400 shrink-0 px-2">
+                    <span id="contador-disponibles">{{ productos|length }}</span> disponibles
+                </span>
+            </div>
+
+            <!-- Grilla de Tarjetas de Productos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[620px] overflow-y-auto pr-1" id="grilla-productos">
+                {% for prod in productos %}
+                    <div class="card-producto glass-panel p-4 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-blue-300 transition-all duration-200 flex flex-col justify-between group"
+                         data-id="{{ prod.id }}"
+                         data-nombre="{{ prod.nombre }}"
+                         data-codigo="{{ prod.codigo|lower }}"
+                         data-precio="{{ prod.precio }}"
+                         data-stock="{{ prod.stock }}">
+                        
+                        <div>
+                            <div class="flex items-start justify-between gap-2">
+                                <span class="font-mono text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                                    {{ prod.codigo }}
+                                </span>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full {% if prod.stock <= 5 %}bg-rose-100 text-rose-700{% elif prod.stock <= 20 %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                                    Stock: <span class="stock-display">{{ prod.stock }}</span>
+                                </span>
+                            </div>
+
+                            <h3 class="font-bold text-slate-800 text-sm mt-2 line-clamp-2">{{ prod.nombre }}</h3>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-lg font-extrabold text-slate-900">${{ prod.precio }}</span>
+                            <button type="button" 
+                                    onclick="agregarAlCarro('{{ prod.id }}', '{{ prod.nombre|escapejs }}', {{ prod.precio }}, {{ prod.stock }})"
+                                    class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition duration-200">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Añadir</span>
+                            </button>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-span-2 py-16 text-center text-slate-400 glass-panel rounded-2xl">
+                        <i data-lucide="package-x" class="w-12 h-12 mx-auto text-slate-300 mb-2"></i>
+                        <p class="text-sm font-semibold">No hay productos con stock disponible para la venta.</p>
+                        <a href="{% url 'producto_create' %}" class="text-xs text-blue-600 font-bold hover:underline mt-2 inline-block">
+                            Registrar productos en el catálogo &rarr;
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- PANEL DERECHO: CARRO DE COMPRA Y CHECKOUT (5 COLUMNAS) -->
+        <!-- ============================================================== -->
+        <div class="lg:col-span-5 space-y-4">
+            
+            <div class="glass-panel p-6 rounded-3xl border border-slate-200/80 shadow-xl space-y-6">
+                
+                <!-- Encabezado del Carrito -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>
+                        <h2 class="text-base font-extrabold text-slate-900">Carro de Compra</h2>
+                    </div>
+                    <button type="button" onclick="vaciarCarro()" class="text-xs text-rose-500 hover:text-rose-700 font-semibold transition">
+                        Vaciar Carro
+                    </button>
+                </div>
+
+                <!-- Lista de Ítems en el Carro -->
+                <div class="space-y-2.5 max-h-[220px] overflow-y-auto pr-1" id="contenedor-items-carro">
+                    <div id="carro-vacio" class="py-8 text-center text-slate-400 space-y-2">
+                        <i data-lucide="shopping-bag" class="w-8 h-8 mx-auto text-slate-300"></i>
+                        <p class="text-xs font-medium">El carro está vacío. Seleccione productos del panel izquierdo.</p>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN DE IDENTIFICACIÓN DE CLIENTE -->
+                <div class="pt-4 border-t border-slate-100 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Identificación de Cliente
+                        </label>
+                    </div>
+
+                    <!-- Selector por Pestañas: Boleta Rápida (Solo RUT) vs Cliente Habitual -->
+                    <div class="flex rounded-xl bg-slate-100 p-1 text-xs font-bold">
+                        <button type="button" id="tab-boleta-rapida" onclick="cambiarTabCliente('rapida')" 
+                                class="flex-1 py-1.5 rounded-lg bg-white shadow-xs text-blue-600 transition">
+                            Boleta Rápida (Solo RUT)
+                        </button>
+                        <button type="button" id="tab-habitual" onclick="cambiarTabCliente('habitual')" 
+                                class="flex-1 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+                            Cliente Habitual
+                        </button>
+                    </div>
+
+                    <!-- OPCIÓN 1: BOLETA RÁPIDA (SOLO RUT) -->
+                    <div id="panel-boleta-rapida" class="space-y-1.5">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="hash" class="w-4 h-4"></i>
+                            </div>
+                            <input type="text" id="input-rut-rapido" placeholder="RUT para boleta (ej: 12.345.678-9)"
+                                   class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs font-medium uppercase focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <p class="text-[11px] text-slate-400">Se emitirá la boleta legal con este RUT sin requerir datos adicionales.</p>
+                    </div>
+
+                    <!-- OPCIÓN 2: SELECTOR DE CLIENTE HABITUAL -->
+                    <div id="panel-cliente-habitual" class="hidden space-y-1.5">
+                        <select id="select-cliente-habitual" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Seleccione un cliente habitual --</option>
+                            {% for ch in clientes_habituales %}
+                                <option value="{{ ch.id }}">{{ ch.nombre }} ({{ ch.rut }})</option>
+                            {% endfor %}
+                        </select>
+                        <p class="text-[11px] text-slate-400">
+                            ¿No está en la lista? <a href="{% url 'cliente_create' %}" target="_blank" class="text-blue-600 underline font-semibold">Registrar cliente</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RESUMEN ECONÓMICO: SUBTOTAL, IVA (19%) Y TOTAL -->
+                <div class="pt-4 border-t border-slate-100 space-y-2 bg-slate-50/60 p-4 rounded-2xl border border-slate-100">
+                    <div class="flex justify-between text-xs font-medium text-slate-600">
+                        <span>Subtotal Neto:</span>
+                        <span id="resumen-neto" class="font-semibold text-slate-800">$0</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600">
+                        <span>IVA (19%):</span>
+                        <span id="resumen-iva" class="font-semibold text-slate-800">$0</span>
+                    </div>
+                    <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                        <span>Total a Pagar:</span>
+                        <span id="resumen-total" class="text-xl text-blue-600">$0</span>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO OCULTO PARA SUBMIT POST DE LA VENTA -->
+                <form method="post" action="{% url 'venta_pos' %}" id="form-finalizar-venta">
+                    {% csrf_token %}
+                    <input type="hidden" name="carro_data" id="campo-carro-data" value="[]">
+                    <input type="hidden" name="cliente_rut" id="campo-cliente-rut" value="">
+                    <input type="hidden" name="cliente_id" id="campo-cliente-id" value="">
+
+                    <!-- BOTÓN PRINCIPAL FINALIZAR VENTA -->
+                    <button type="button" onclick="ejecutarVenta()" id="btn-finalizar"
+                            class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center space-x-2">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        <span>Finalizar Venta & Emitir Boleta</span>
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Estado reactivo del carro de compras
+    let carro = [];
+    let tipoCliente = 'rapida'; // 'rapida' o 'habitual'
+
+    // Búsqueda instantánea de productos en el POS
+    const posBuscador = document.getElementById('pos-buscador');
+    const tarjetasProductos = document.querySelectorAll('.card-producto');
+    const contadorDisponibles = document.getElementById('contador-disponibles');
+
+    if (posBuscador) {
+        posBuscador.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase().trim();
+            let visibles = 0;
+            tarjetasProductos.forEach(card => {
+                const nombre = card.getAttribute('data-nombre').toLowerCase();
+                const codigo = card.getAttribute('data-codigo');
+                if (nombre.includes(term) || codigo.includes(term)) {
+                    card.style.display = 'flex';
+                    visibles++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            if (contadorDisponibles) contadorDisponibles.innerText = visibles;
+        });
+    }
+
+    // Alternar selector de cliente
+    function cambiarTabCliente(tipo) {
+        tipoCliente = tipo;
+        const tabRapida = document.getElementById('tab-boleta-rapida');
+        const tabHabitual = document.getElementById('tab-habitual');
+        const panelRapida = document.getElementById('panel-boleta-rapida');
+        const panelHabitual = document.getElementById('panel-cliente-habitual');
+
+        if (tipo === 'rapida') {
+            tabRapida.classList.add('bg-white', 'shadow-xs', 'text-blue-600');
+            tabRapida.classList.remove('text-slate-600');
+            tabHabitual.classList.remove('bg-white', 'shadow-xs', 'text-blue-600');
+            tabHabitual.classList.add('text-slate-600');
+            panelRapida.classList.remove('hidden');
+            panelHabitual.classList.add('hidden');
+        } else {
+            tabHabitual.classList.add('bg-white', 'shadow-xs', 'text-blue-600');
+            tabHabitual.classList.remove('text-slate-600');
+            tabRapida.classList.remove('bg-white', 'shadow-xs', 'text-blue-600');
+            tabRapida.classList.add('text-slate-600');
+            panelHabitual.classList.remove('hidden');
+            panelRapida.classList.add('hidden');
+        }
+    }
+
+    // Agregar producto al carro
+    function agregarAlCarro(id, nombre, precio, maxStock) {
+        const existente = carro.find(item => item.id === id);
+        if (existente) {
+            if (existente.cantidad + 1 > maxStock) {
+                alert(`No hay más existencias disponibles para '${nombre}'. Stock físico: ${maxStock}`);
+                return;
+            }
+            existente.cantidad += 1;
+        } else {
+            if (maxStock < 1) {
+                alert(`El producto '${nombre}' no tiene stock disponible.`);
+                return;
+            }
+            carro.push({
+                id: id,
+                nombre: nombre,
+                precio: precio,
+                cantidad: 1,
+                maxStock: maxStock
+            });
+        }
+        renderCarro();
+    }
+
+    // Modificar cantidad (+ / -)
+    function modificarCantidad(id, delta) {
+        const item = carro.find(i => i.id === id);
+        if (!item) return;
+
+        const nuevaCantidad = item.cantidad + delta;
+        if (nuevaCantidad <= 0) {
+            eliminarItem(id);
+            return;
+        }
+        if (nuevaCantidad > item.maxStock) {
+            alert(`Stock máximo alcanzado para '${item.nombre}' (${item.maxStock} unidades).`);
+            return;
+        }
+        item.cantidad = nuevaCantidad;
+        renderCarro();
+    }
+
+    // Eliminar un producto del carro
+    function eliminarItem(id) {
+        carro = carro.filter(i => i.id !== id);
+        renderCarro();
+    }
+
+    // Vaciar todo el carro
+    function vaciarCarro() {
+        carro = [];
+        renderCarro();
+    }
+
+    // Renderizar lista e importes del carro
+    function renderCarro() {
+        const contenedor = document.getElementById('contenedor-items-carro');
+        const campoCarro = document.getElementById('campo-carro-data');
+
+        if (carro.length === 0) {
+            contenedor.innerHTML = `
+                <div id="carro-vacio" class="py-8 text-center text-slate-400 space-y-2">
+                    <i data-lucide="shopping-bag" class="w-8 h-8 mx-auto text-slate-300"></i>
+                    <p class="text-xs font-medium">El carro está vacío. Seleccione productos del panel izquierdo.</p>
+                </div>
+            `;
+            actualizarTotales(0);
+            campoCarro.value = "[]";
+            lucide.createIcons();
+            return;
+        }
+
+        let html = '';
+        let totalGeneral = 0;
+
+        carro.forEach(item => {
+            const subtotal = item.precio * item.cantidad;
+            totalGeneral += subtotal;
+
+            html += `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-100 shadow-2xs">
+                    <div class="flex-1 pr-2">
+                        <h4 class="text-xs font-bold text-slate-800 line-clamp-1">${item.nombre}</h4>
+                        <span class="text-[11px] text-slate-400">$${item.precio} c/u</span>
+                    </div>
+
+                    <!-- Controles de Cantidad -->
+                    <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl">
+                        <button type="button" onclick="modificarCantidad('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-white hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center transition">
+                            -
+                        </button>
+                        <span class="text-xs font-extrabold text-slate-800 px-1.5 min-w-[20px] text-center">
+                            ${item.cantidad}
+                        </span>
+                        <button type="button" onclick="modificarCantidad('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-white hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center transition">
+                            +
+                        </button>
+                    </div>
+
+                    <!-- Subtotal y Botón Eliminar -->
+                    <div class="text-right pl-3">
+                        <span class="text-xs font-extrabold text-slate-900 block">$${subtotal}</span>
+                        <button type="button" onclick="eliminarItem('${item.id}')" class="text-[10px] text-rose-500 hover:text-rose-700 font-medium">
+                            Quitar
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        contenedor.innerHTML = html;
+        actualizarTotales(totalGeneral);
+        campoCarro.value = JSON.stringify(carro);
+        lucide.createIcons();
+    }
+
+    // Calcular Subtotal, IVA (19%) y Total
+    function actualizarTotales(total) {
+        let neto = 0;
+        let iva = 0;
+
+        if (total > 0) {
+            neto = Math.round(total / 1.19);
+            iva = total - neto;
+        }
+
+        document.getElementById('resumen-neto').innerText = `$${neto.toLocaleString('es-CL')}`;
+        document.getElementById('resumen-iva').innerText = `$${iva.toLocaleString('es-CL')}`;
+        document.getElementById('resumen-total').innerText = `$${total.toLocaleString('es-CL')}`;
+    }
+
+    // Finalizar venta
+    function ejecutarVenta() {
+        if (carro.length === 0) {
+            alert("No puede procesar una venta con el carro de compras vacío.");
+            return;
+        }
+
+        const campoRut = document.getElementById('campo-cliente-rut');
+        const campoId = document.getElementById('campo-cliente-id');
+
+        if (tipoCliente === 'rapida') {
+            const rut = document.getElementById('input-rut-rapido').value.trim();
+            if (!rut) {
+                alert("Para emitir la boleta debe ingresar el RUT del cliente.");
+                document.getElementById('input-rut-rapido').focus();
+                return;
+            }
+            campoRut.value = rut;
+            campoId.value = "";
+        } else {
+            const clienteId = document.getElementById('select-cliente-habitual').value;
+            if (!clienteId) {
+                alert("Seleccione un cliente habitual de la lista desplegable.");
+                document.getElementById('select-cliente-habitual').focus();
+                return;
+            }
+            campoId.value = clienteId;
+            campoRut.value = "";
+        }
+
+        // Enviar formulario al servidor Django
+        document.getElementById('form-finalizar-venta').submit();
+    }
+</script>
+{% endblock %}

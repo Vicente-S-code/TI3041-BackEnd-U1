@@ -1,0 +1,156 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Boleta Electrónica {{ venta.numero_boleta }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+
+    <!-- BOTONES SUPERIORES DE NAVEGACIÓN Y ACCIÓN (NO VISIBLES AL IMPRIMIR) -->
+    <div class="flex flex-wrap items-center justify-between gap-3 no-print">
+        <div class="flex items-center space-x-2">
+            <a href="{% url 'dashboard' %}" class="inline-flex items-center space-x-2 text-sm font-semibold text-slate-500 hover:text-blue-600 transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Dashboard</span>
+            </a>
+            <span class="text-slate-300">/</span>
+            <a href="{% url 'venta_list' %}" class="text-sm font-semibold text-slate-500 hover:text-blue-600 transition">
+                Historial de Ventas
+            </a>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'venta_pos' %}" class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-xs transition">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Nueva Venta</span>
+            </a>
+            
+            <!-- BOTÓN IMPRIMIR BOLETA -->
+            <button type="button" onclick="window.print()" 
+                    class="inline-flex items-center space-x-2 px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/25 hover:scale-105 active:scale-95 transition-all duration-200">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Imprimir Boleta</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- FORMATO DE BOLETA ELECTRÓNICA VISUAL (ESTRUCTURA TÉRMICA / SAAS) -->
+    <div class="boleta-container glass-panel rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-200/80 bg-white text-slate-800 space-y-6">
+        
+        <!-- ENCABEZADO FISCAL DE LA EMPRESA -->
+        <div class="text-center space-y-1.5 pb-6 border-b border-dashed border-slate-300">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 mb-2">
+                <i data-lucide="store" class="w-6 h-6"></i>
+            </div>
+            <h2 class="text-xl font-extrabold uppercase tracking-tight text-slate-900">
+                COMERCIAL Y VENTAS S.A.
+            </h2>
+            <p class="text-xs text-slate-500 font-mono">R.U.T.: 76.543.210-K &bull; Giro: Venta al por menor</p>
+            <p class="text-xs text-slate-500">Casa Central: Av. Libertador Bernardo O'Higgins #1234</p>
+            <p class="text-xs text-slate-500">Santiago, Chile &bull; Mesa Central: +56 2 2987 6543</p>
+            
+            <div class="pt-3">
+                <div class="inline-block px-4 py-1.5 rounded-xl bg-slate-900 text-white font-mono text-xs font-bold tracking-wider">
+                    BOLETA ELECTRÓNICA Nº {{ venta.numero_boleta }}
+                </div>
+            </div>
+        </div>
+
+        <!-- DATOS DE LA TRANSACCIÓN Y DEL CLIENTE -->
+        <div class="grid grid-cols-2 gap-4 text-xs">
+            <div class="space-y-1">
+                <span class="text-slate-400 uppercase font-bold text-[10px] tracking-wider block">Fecha y Hora de Emisión</span>
+                <p class="font-semibold text-slate-800">{{ venta.fecha|date:"d/m/Y H:i:s" }}</p>
+            </div>
+            <div class="space-y-1 text-right">
+                <span class="text-slate-400 uppercase font-bold text-[10px] tracking-wider block">Modalidad de Venta</span>
+                <p class="font-semibold text-slate-800">
+                    {% if venta.cliente.cliente_habitual %}
+                        <span class="text-emerald-600 font-bold">Cliente Habitual</span>
+                    {% else %}
+                        <span class="text-slate-600 font-bold">Boleta Rápida</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="space-y-1 col-span-2 pt-2 border-t border-slate-100">
+                <span class="text-slate-400 uppercase font-bold text-[10px] tracking-wider block">Información del Cliente</span>
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div>
+                        <p class="font-bold text-slate-900 text-sm">{{ venta.cliente.nombre }}</p>
+                        {% if venta.cliente.correo %}
+                            <p class="text-[11px] text-slate-500">{{ venta.cliente.correo }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-right font-mono">
+                        <span class="text-xs font-extrabold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                            RUT: {{ venta.cliente.rut }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA DE PRODUCTOS VENDIDOS -->
+        <div class="pt-2">
+            <table class="w-full text-left text-xs">
+                <thead class="border-b-2 border-slate-200 text-slate-500 uppercase font-bold text-[10px] tracking-wider">
+                    <tr>
+                        <th class="py-2.5">Ítem / Producto</th>
+                        <th class="py-2.5 text-center">Cant.</th>
+                        <th class="py-2.5 text-right">P. Unit</th>
+                        <th class="py-2.5 text-right">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                    {% for d in venta.detalles.all %}
+                        <tr>
+                            <td class="py-3 pr-2">
+                                <div class="font-bold text-slate-900">{{ d.producto.nombre }}</div>
+                                <span class="font-mono text-[10px] text-slate-400">SKU: {{ d.producto.codigo }}</span>
+                            </td>
+                            <td class="py-3 text-center font-bold text-slate-800">
+                                {{ d.cantidad }}
+                            </td>
+                            <td class="py-3 text-right">
+                                ${{ d.producto.precio }}
+                            </td>
+                            <td class="py-3 text-right font-bold text-slate-900">
+                                ${{ d.subtotal }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DESGLOSE TRIBUTARIO: NETO, IVA 19% Y TOTAL FINAL -->
+        <div class="pt-4 border-t-2 border-slate-200 space-y-2">
+            <div class="flex justify-between text-xs text-slate-500">
+                <span>Subtotal Monto Neto:</span>
+                <span class="font-mono font-semibold text-slate-700">${{ venta.subtotal_neto }}</span>
+            </div>
+            <div class="flex justify-between text-xs text-slate-500">
+                <span>I.V.A. (19%):</span>
+                <span class="font-mono font-semibold text-slate-700">${{ venta.iva }}</span>
+            </div>
+            <div class="flex justify-between text-lg font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                <span>TOTAL A PAGAR:</span>
+                <span class="text-2xl text-blue-600 font-mono font-extrabold">${{ venta.total }}</span>
+            </div>
+        </div>
+
+        <!-- PIE DE BOLETA LEGAL Y TIMBRE SIMULADO -->
+        <div class="text-center pt-6 border-t border-dashed border-slate-300 space-y-3">
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 font-mono text-[10px] text-slate-500 max-w-sm mx-auto">
+                <p>Timbre Electrónico SII &bull; Res. 80 de 2014</p>
+                <p class="text-slate-400 mt-0.5">Verifique documento: www.sii.cl</p>
+            </div>
+            <p class="text-xs text-slate-500 italic">
+                ¡Gracias por su compra! Conserve esta boleta ante cambios o garantías.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

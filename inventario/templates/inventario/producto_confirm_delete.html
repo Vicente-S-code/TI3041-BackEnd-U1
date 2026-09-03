@@ -1,9 +1,67 @@
-<!-- inventario/templates/inventario/producto_confirm_delete.html -->
 {% extends 'inventario/base.html' %}
+
+{% block title %}Confirmar Eliminación de Producto{% endblock %}
+
 {% block content %}
-<h1>¿Eliminar {{ object.nombre }}?</h1>
-<form method="post">{% csrf_token %}
-  <button type="submit">Sí, eliminar</button>
-  <a href="{% url 'producto_list' %}">Cancelar</a>
-</form>
+<div class="max-w-xl mx-auto space-y-6 pt-6">
+
+    <!-- BOTÓN REGRESAR -->
+    <a href="{% url 'producto_list' %}" class="inline-flex items-center space-x-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Volver al Catálogo</span>
+    </a>
+
+    <!-- TARJETA ELEVADA DE CONFIRMACIÓN -->
+    <div class="glass-panel rounded-3xl p-8 sm:p-10 shadow-2xl border border-rose-200/80 relative overflow-hidden text-center space-y-6">
+        
+        <!-- Icono de advertencia con animación de atención -->
+        <div class="w-16 h-16 rounded-3xl bg-rose-100 text-rose-600 mx-auto flex items-center justify-center shadow-lg shadow-rose-500/15">
+            <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+        </div>
+
+        <div class="space-y-2">
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">¿Desea eliminar este producto?</h1>
+            <p class="text-sm text-slate-500 max-w-sm mx-auto">
+                Esta acción removerá definitivamente el producto del catálogo comercial.
+            </p>
+        </div>
+
+        <!-- Ficha de resumen del producto a borrar -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/70 text-left space-y-2">
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-slate-500">Producto:</span>
+                <span class="font-bold text-slate-900">{{ producto.nombre }}</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-slate-500">Código SKU:</span>
+                <span class="font-mono font-bold text-blue-600">{{ producto.codigo }}</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-slate-500">Precio Unitario:</span>
+                <span class="font-bold text-slate-800">${{ producto.precio }}</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-slate-500">Stock Actual:</span>
+                <span class="font-bold {% if producto.stock <= 5 %}text-rose-600{% else %}text-slate-800{% endif %}">
+                    {{ producto.stock }} unidades
+                </span>
+            </div>
+        </div>
+
+        <!-- Formulario POST de confirmación -->
+        <form method="post" class="flex items-center justify-center space-x-3 pt-2">
+            {% csrf_token %}
+            <a href="{% url 'producto_list' %}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-sm font-semibold transition">
+                Cancelar
+            </a>
+            <button type="submit" 
+                    class="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-lg shadow-rose-500/25 hover:scale-105 active:scale-95 transition-all duration-200">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                <span>Sí, Eliminar Producto</span>
+            </button>
+        </form>
+
+    </div>
+
+</div>
 {% endblock %}

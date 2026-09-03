@@ -1,9 +1,169 @@
-!-- inventario/templates/inventario/producto_form.html -->
 {% extends 'inventario/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
 {% block content %}
-<h1>Producto</h1>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Guardar</button>
-</form>
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <!-- BOTÓN DE RETORNO Y BREADCRUMB -->
+    <div class="flex items-center justify-between">
+        <a href="{% url 'producto_list' %}" class="inline-flex items-center space-x-2 text-sm font-semibold text-slate-500 hover:text-blue-600 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Volver al Catálogo de Inventario</span>
+        </a>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+            Módulo de Productos
+        </span>
+    </div>
+
+    <!-- TARJETA ELEVADA DEL FORMULARIO CON GLASSMORPHISM -->
+    <div class="glass-panel rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-200/80 relative overflow-hidden">
+        <!-- Decoración abstracta sutil -->
+        <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+
+        <div class="flex items-center space-x-4 mb-8">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <i data-lucide="box" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ titulo }}</h1>
+                <p class="text-sm text-slate-500">Complete los datos obligatorios para gestionar las existencias del catálogo comercial.</p>
+            </div>
+        </div>
+
+        <!-- FORMULARIO DJANGO CON INTEGRACIÓN CRISPY-FORMS Y CRISPY-TAILWIND -->
+        <form method="post" novalidate class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Si hay errores globales no asociados a un campo específico -->
+            {% if form.non_field_errors %}
+                <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-medium flex items-center gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+                    <div>{{ form.non_field_errors }}</div>
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                <!-- CAMPO: NOMBRE DEL PRODUCTO -->
+                <div class="sm:col-span-2 space-y-1.5">
+                    <label for="{{ form.nombre.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                        Nombre del Producto <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative rounded-2xl shadow-xs">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="tag" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text" name="{{ form.nombre.name }}" id="{{ form.nombre.id_for_label }}"
+                               value="{{ form.nombre.value|default:'' }}"
+                               placeholder="Ej: Aceite Vegetal 900ml, Arroz Grano Largo..."
+                               required
+                               class="w-full pl-10 pr-4 py-3 rounded-2xl border {% if form.nombre.errors %}border-rose-300 bg-rose-50/40 text-rose-900 focus:ring-rose-500 focus:border-rose-500{% else %}border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500{% endif %} text-sm font-medium transition-all duration-200 placeholder:text-slate-400">
+                    </div>
+                    {% if form.nombre.errors %}
+                        <p class="text-xs text-rose-600 font-semibold flex items-center gap-1 mt-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                            {{ form.nombre.errors.0 }}
+                        </p>
+                    {% else %}
+                        <p class="text-[11px] text-slate-400">Nombre descriptivo comercial con el que se mostrará en boletas y POS.</p>
+                    {% endif %}
+                </div>
+
+                <!-- CAMPO: CÓDIGO / SKU ÚNICO -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.codigo.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                        Código / SKU Único <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative rounded-2xl shadow-xs">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="barcode" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text" name="{{ form.codigo.name }}" id="{{ form.codigo.id_for_label }}"
+                               value="{{ form.codigo.value|default:'' }}"
+                               placeholder="Ej: PROD-101"
+                               required
+                               class="w-full pl-10 pr-4 py-3 rounded-2xl border uppercase font-mono {% if form.codigo.errors %}border-rose-300 bg-rose-50/40 text-rose-900 focus:ring-rose-500 focus:border-rose-500{% else %}border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500{% endif %} text-sm font-medium transition-all duration-200 placeholder:text-slate-400">
+                    </div>
+                    {% if form.codigo.errors %}
+                        <p class="text-xs text-rose-600 font-semibold flex items-center gap-1 mt-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                            {{ form.codigo.errors.0 }}
+                        </p>
+                    {% else %}
+                        <p class="text-[11px] text-slate-400">Identificador único irrepetible (código de barras o clave interna).</p>
+                    {% endif %}
+                </div>
+
+                <!-- CAMPO: PRECIO UNITARIO ($) -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.precio.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                        Precio de Venta ($ CLP) <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative rounded-2xl shadow-xs">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">
+                            $
+                        </div>
+                        <input type="number" name="{{ form.precio.name }}" id="{{ form.precio.id_for_label }}"
+                               value="{{ form.precio.value|default:'' }}"
+                               placeholder="Ej: 1990"
+                               min="1"
+                               required
+                               class="w-full pl-10 pr-4 py-3 rounded-2xl border {% if form.precio.errors %}border-rose-300 bg-rose-50/40 text-rose-900 focus:ring-rose-500 focus:border-rose-500{% else %}border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500{% endif %} text-sm font-medium transition-all duration-200 placeholder:text-slate-400">
+                    </div>
+                    {% if form.precio.errors %}
+                        <p class="text-xs text-rose-600 font-semibold flex items-center gap-1 mt-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                            {{ form.precio.errors.0 }}
+                        </p>
+                    {% else %}
+                        <p class="text-[11px] text-slate-400">Valor de venta al público en CLP. Debe ser mayor a 0.</p>
+                    {% endif %}
+                </div>
+
+                <!-- CAMPO: STOCK DISPONIBLE (EXISTENCIAS FÍSICAS) -->
+                <div class="sm:col-span-2 space-y-1.5">
+                    <label for="{{ form.stock.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                        Cantidad en Stock (Inventario Físico) <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative rounded-2xl shadow-xs">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                        </div>
+                        <input type="number" name="{{ form.stock.name }}" id="{{ form.stock.id_for_label }}"
+                               value="{{ form.stock.value|default:'0' }}"
+                               placeholder="Ej: 50"
+                               min="0"
+                               required
+                               class="w-full pl-10 pr-4 py-3 rounded-2xl border {% if form.stock.errors %}border-rose-300 bg-rose-50/40 text-rose-900 focus:ring-rose-500 focus:border-rose-500{% else %}border-slate-200 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500{% endif %} text-sm font-medium transition-all duration-200 placeholder:text-slate-400">
+                    </div>
+                    {% if form.stock.errors %}
+                        <p class="text-xs text-rose-600 font-semibold flex items-center gap-1 mt-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                            {{ form.stock.errors.0 }}
+                        </p>
+                    {% else %}
+                        <p class="text-[11px] text-slate-400">Existencias físicas iniciales disponibles para la venta (mínimo 0).</p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- BOTONES DE ACCIÓN DEL FORMULARIO -->
+            <div class="pt-6 border-t border-slate-100 flex items-center justify-end space-x-3">
+                <a href="{% url 'producto_list' %}" class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-sm transition">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center space-x-2 px-7 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 hover:scale-105 active:scale-95 transition-all duration-300">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>{{ accion }}</span>
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+</div>
 {% endblock %}
