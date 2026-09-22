@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure-14g!@-*3v0fag@cd&hul_fbbmg&zlgs5wsg&6wuc+gwf8o88!&
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'ti3041-p2-c3-2026p-u1.vercel.app',
+    'ti-3041-back-end-u1.vercel.app',
     'localhost',
     '127.0.0.1'
 ]
