@@ -11,7 +11,15 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+db_host = os.getenv("host")
+db_port = os.getenv("port")
+db_database = os.getenv("database")
+db_user = os.getenv("user")
+db_password = os.getenv("password")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +33,11 @@ SECRET_KEY = 'django-insecure-14g!@-*3v0fag@cd&hul_fbbmg&zlgs5wsg&6wuc+gwf8o88!&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'ti3041-p2-c3-2026p-u1.vercel.app',
+    'localhost',
+    '127.0.0.1'
+]
 
 
 # Application definition
@@ -85,9 +97,13 @@ WSGI_APPLICATION = 'mi_proyecto.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': db_database,
+        'USER': db_user,
+        'PASSWORD': db_password,
+        'HOST': db_host,
+        'PORT': db_port
+}
 }
 
 
