@@ -4,6 +4,7 @@
 ## Crear migración: python manage.py makemigrations / Aplicar migración: python manage.py migrate
 ## python manage.py createsuperuser
 ## python manage.py runserver - para iniciar el servidor
+## python colleststatic
 
 Instrucciones para probar en tu navegador:
 El servidor ya está activo. Solo debes ingresar a:
