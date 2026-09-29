@@ -1,10 +1,3 @@
-/* 
- * VentaControl Pro - Custom CSS & Glassmorphism Styles
- * ====================================================
- * Complementa Tailwind CSS con efectos de glassmorphism,
- * transiciones personalizadas y reglas de impresión térmica/A4 para boletas.
- */
-
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 body {
@@ -13,7 +6,6 @@ body {
     color: #0F172A;
 }
 
-/* Efectos Glassmorphism modernos */
 .glass-panel {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
@@ -35,7 +27,6 @@ body {
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-/* Animación de entrada suave para Toasts y modales */
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -51,9 +42,7 @@ body {
     animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Reglas de impresión para el módulo de Boleta Electrónica */
 @media print {
-    /* Ocultar barra de navegación, botones y pie de página en la impresión */
     nav, header, .no-print, button, .sidebar, #toast-container {
         display: none !important;
     }

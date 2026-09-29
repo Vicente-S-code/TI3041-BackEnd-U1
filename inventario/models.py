@@ -16,9 +16,6 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 
-# =====================================================================
-# MODELO: PRODUCTO
-# =====================================================================
 class Producto(models.Model):
     """
     Representa un artículo disponible para la venta en el establecimiento.
@@ -117,10 +114,6 @@ class Producto(models.Model):
                 'dot_color': 'bg-rose-500'
             }
 
-
-# =====================================================================
-# MODELO: CLIENTE
-# =====================================================================
 class Cliente(models.Model):
     """
     Representa a los compradores del establecimiento.
@@ -183,10 +176,6 @@ class Cliente(models.Model):
                     'nombre': 'Para registrar como cliente habitual debe ingresar el nombre completo.'
                 })
 
-
-# =====================================================================
-# MODELO: VENTA
-# =====================================================================
 class Venta(models.Model):
     """
     Cabecera de la transacción de venta.
@@ -242,10 +231,6 @@ class Venta(models.Model):
         """
         return self.total - self.subtotal_neto
 
-
-# =====================================================================
-# MODELO: DETALLE DE VENTA
-# =====================================================================
 class DetalleVenta(models.Model):
     """
     Ítem individual de productos que componen una venta específica.
