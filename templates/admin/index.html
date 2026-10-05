@@ -1,0 +1,94 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div id="content-main">
+    <!-- Hero Banner del Panel de Administración -->
+    <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
+                border: 1px solid rgba(79, 70, 229, 0.25); border-radius: 16px; padding: 26px 30px;
+                margin-bottom: 28px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
+        <div style="max-width: 650px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(79, 70, 229, 0.2);
+                        color: var(--adm-primary); font-size: 11px; font-weight: 700; text-transform: uppercase;
+                        letter-spacing: 0.08em; padding: 4px 10px; border-radius: 9999px; margin-bottom: 10px;">
+                <span>✨ Panel Administrativo VentaControl Pro</span>
+            </div>
+            <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--adm-text); margin: 0 0 8px 0; line-height: 1.2;">
+                Control Integral de Ventas e Inventario
+            </h1>
+            <p style="font-size: 14px; color: var(--adm-text-muted); margin: 0; line-height: 1.5;">
+                Auditoría completa de existencias, cálculo automático de impuestos y emisión de reportes analíticos por rango de fechas.
+            </p>
+        </div>
+
+        <!-- Accesos Rápidos Principales -->
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <a href="{% url 'admin:inventario_venta_reporte' %}" class="btn-report" title="Ver reporte de ventas por rango de fechas">
+                <span>📊 Reporte por Fechas</span>
+            </a>
+            <a href="{% url 'admin:inventario_venta_add' %}" class="btn-primary" title="Registrar una nueva venta con inlines">
+                <span>➕ Nueva Venta</span>
+            </a>
+            <a href="{% url 'venta_pos' %}" class="btn-secondary" style="border-color: #10b981; color: #10b981;" title="Abrir terminal de ventas POS">
+                <span>🛒 Abrir POS</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Cuadrícula de Tarjetas KPI -->
+    <div class="kpi-grid">
+        <!-- KPI 1: Productos en Inventario -->
+        <div class="kpi-card" style="border-left: 4px solid #3b82f6;">
+            <div class="kpi-badge" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6;">📦</div>
+            <div class="kpi-title">Productos en Catálogo</div>
+            <div class="kpi-value">{{ admin_kpi_productos|default:"0" }}</div>
+            <div style="margin-top: 8px; font-size: 12px;">
+                <a href="{% url 'admin:inventario_producto_changelist' %}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                    Ver inventario &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI 2: Clientes Registrados -->
+        <div class="kpi-card" style="border-left: 4px solid #8b5cf6;">
+            <div class="kpi-badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">👥</div>
+            <div class="kpi-title">Clientes Registrados</div>
+            <div class="kpi-value">{{ admin_kpi_clientes|default:"0" }}</div>
+            <div style="margin-top: 8px; font-size: 12px;">
+                <a href="{% url 'admin:inventario_cliente_changelist' %}" style="color: #8b5cf6; text-decoration: none; font-weight: 600;">
+                    Ver clientes &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI 3: Transacciones de Venta -->
+        <div class="kpi-card" style="border-left: 4px solid #10b981;">
+            <div class="kpi-badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">💳</div>
+            <div class="kpi-title">Ventas Emitidas</div>
+            <div class="kpi-value">{{ admin_kpi_ventas|default:"0" }}</div>
+            <div style="margin-top: 8px; font-size: 12px;">
+                <a href="{% url 'admin:inventario_venta_changelist' %}" style="color: #10b981; text-decoration: none; font-weight: 600;">
+                    Ver transacciones &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI 4: Recaudación Acumulada -->
+        <div class="kpi-card" style="border-left: 4px solid #f59e0b;">
+            <div class="kpi-badge" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">💰</div>
+            <div class="kpi-title">Recaudación Total</div>
+            <div class="kpi-value" style="color: #10b981; font-size: 22px;">
+                ${{ admin_kpi_recaudado|default:0|stringformat:",d" }} CLP
+            </div>
+            <div style="margin-top: 8px; font-size: 12px;">
+                <a href="{% url 'admin:inventario_venta_reporte' %}" style="color: #f59e0b; text-decoration: none; font-weight: 600;">
+                    Generar reporte &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Módulos Estándar de Django Admin -->
+    {{ block.super }}
+</div>
+{% endblock %}

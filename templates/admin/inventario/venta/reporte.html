@@ -1,0 +1,272 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}
+<nav aria-label="Breadcrumbs">
+    <ol class="breadcrumbs">
+        <li><a href="{% url 'admin:index' %}">Inicio</a></li>
+        <li><a href="{% url 'admin:inventario_venta_changelist' %}">Ventas</a></li>
+        <li aria-current="page">Reporte de Ventas por Rango de Fechas</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" style="max-width: 1400px; margin: 0 auto;">
+    
+    <!-- Encabezado del Reporte -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--adm-text); margin: 0 0 6px 0;">
+                📊 Reporte Financiero de Ventas
+            </h1>
+            <p style="font-size: 14px; color: var(--adm-text-muted); margin: 0;">
+                Auditoría tributaria, totalización de transacciones y ranking de productos en el periodo seleccionado.
+            </p>
+        </div>
+
+        <!-- Botones de Acción (Imprimir / Exportar) -->
+        <div class="no-print" style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'admin:inventario_venta_changelist' %}" class="btn-secondary" style="text-decoration: none;">
+                &larr; Volver al Listado
+            </a>
+            <a href="?fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&preset={{ preset }}&export=csv" class="btn-success" style="text-decoration: none;" title="Descargar datos en formato CSV compatible con Excel">
+                <span>📥 Exportar CSV</span>
+            </a>
+            <button type="button" onclick="window.print()" class="btn-primary" title="Imprimir este informe o guardarlo como PDF">
+                <span>🖨️ Imprimir / Guardar PDF</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Formulario de Filtro por Rango de Fechas -->
+    <div class="module no-print" style="padding: 22px 26px; margin-bottom: 26px;">
+        <form method="GET" action="" style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px;">
+                <!-- Fecha Inicio -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="id_fecha_inicio" style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--adm-text-muted);">
+                        📅 Fecha Inicio
+                    </label>
+                    <input type="date" id="id_fecha_inicio" name="fecha_inicio" value="{{ fecha_inicio }}" style="padding: 8px 12px; font-size: 14px; font-weight: 600;" required>
+                </div>
+
+                <!-- Fecha Fin -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="id_fecha_fin" style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--adm-text-muted);">
+                        📅 Fecha Fin
+                    </label>
+                    <input type="date" id="id_fecha_fin" name="fecha_fin" value="{{ fecha_fin }}" style="padding: 8px 12px; font-size: 14px; font-weight: 600;" required>
+                </div>
+
+                <!-- Botón Filtrar -->
+                <div>
+                    <button type="submit" class="button default" style="height: 40px; padding: 0 20px;">
+                        <span>🔍 Filtrar Periodo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Accesos Rápidos de Rango (Pills) -->
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 8px; border-top: 1px solid var(--adm-border);">
+                <span style="font-size: 12px; font-weight: 600; color: var(--adm-text-muted); margin-right: 4px;">Filtros rápidos:</span>
+                <a href="?preset=hoy" class="button" style="padding: 5px 12px; font-size: 12px; text-decoration: none; {% if preset == 'hoy' %}background: var(--adm-primary) !important; color: #fff !important;{% endif %}">Hoy</a>
+                <a href="?preset=7dias" class="button" style="padding: 5px 12px; font-size: 12px; text-decoration: none; {% if preset == '7dias' %}background: var(--adm-primary) !important; color: #fff !important;{% endif %}">Últimos 7 días</a>
+                <a href="?preset=mes" class="button" style="padding: 5px 12px; font-size: 12px; text-decoration: none; {% if preset == 'mes' %}background: var(--adm-primary) !important; color: #fff !important;{% endif %}">Este Mes</a>
+                <a href="?preset=ano" class="button" style="padding: 5px 12px; font-size: 12px; text-decoration: none; {% if preset == 'ano' %}background: var(--adm-primary) !important; color: #fff !important;{% endif %}">Año Actual</a>
+                <a href="?preset=todo" class="button" style="padding: 5px 12px; font-size: 12px; text-decoration: none; {% if preset == 'todo' %}background: var(--adm-primary) !important; color: #fff !important;{% endif %}">Todo el Historial</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Indicador del Periodo Seleccionado -->
+    <div style="background: var(--adm-surface); border: 1px solid var(--adm-border); border-radius: 12px; padding: 14px 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 14px; font-weight: 600; color: var(--adm-text);">
+            Periodo del Reporte: <span style="color: var(--adm-primary); font-weight: 700;">{{ fecha_inicio }}</span> al <span style="color: var(--adm-primary); font-weight: 700;">{{ fecha_fin }}</span>
+        </div>
+        <div style="font-size: 13px; color: var(--adm-text-muted);">
+            Clientes: <strong>{{ ventas_habituales }}</strong> habituales &bull; <strong>{{ ventas_ocasionales }}</strong> ocasionales
+        </div>
+    </div>
+
+    <!-- Métricas Consolidadas (Tarjetas KPI) -->
+    <div class="kpi-grid">
+        <!-- KPI 1: Total Recaudado -->
+        <div class="kpi-card" style="border-left: 4px solid #10b981;">
+            <div class="kpi-badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">💰</div>
+            <div class="kpi-title">Recaudación Total Bruta</div>
+            <div class="kpi-value" style="color: #10b981;">${{ total_recaudado|stringformat:",d" }} CLP</div>
+            <div style="font-size: 12px; color: var(--adm-text-muted); margin-top: 4px;">Monto total final facturado</div>
+        </div>
+
+        <!-- KPI 2: Neto Acumulado -->
+        <div class="kpi-card" style="border-left: 4px solid #3b82f6;">
+            <div class="kpi-badge" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6;">📈</div>
+            <div class="kpi-title">Subtotal Neto (81%)</div>
+            <div class="kpi-value">${{ total_neto|stringformat:",d" }} CLP</div>
+            <div style="font-size: 12px; color: var(--adm-text-muted); margin-top: 4px;">Ingresos base antes de impuesto</div>
+        </div>
+
+        <!-- KPI 3: IVA Recaudado -->
+        <div class="kpi-card" style="border-left: 4px solid #f59e0b;">
+            <div class="kpi-badge" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">⚖️</div>
+            <div class="kpi-title">IVA Débito Fiscal (19%)</div>
+            <div class="kpi-value" style="color: #f59e0b;">${{ total_iva|stringformat:",d" }} CLP</div>
+            <div style="font-size: 12px; color: var(--adm-text-muted); margin-top: 4px;">Impuesto a declarar</div>
+        </div>
+
+        <!-- KPI 4: Cantidad de Ventas -->
+        <div class="kpi-card" style="border-left: 4px solid #8b5cf6;">
+            <div class="kpi-badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">🧾</div>
+            <div class="kpi-title">Transacciones Emitidas</div>
+            <div class="kpi-value">{{ total_ventas }}</div>
+            <div style="font-size: 12px; color: var(--adm-text-muted); margin-top: 4px;">Boletas registradas en el rango</div>
+        </div>
+
+        <!-- KPI 5: Ticket Promedio -->
+        <div class="kpi-card" style="border-left: 4px solid #06b6d4;">
+            <div class="kpi-badge" style="background: rgba(6, 182, 212, 0.12); color: #06b6d4;">🏷️</div>
+            <div class="kpi-title">Ticket Promedio</div>
+            <div class="kpi-value">${{ ticket_promedio|stringformat:",d" }} CLP</div>
+            <div style="font-size: 12px; color: var(--adm-text-muted); margin-top: 4px;">Promedio por compra realizada</div>
+        </div>
+
+        <!-- KPI 6: Unidades de Productos Vendidas -->
+        <div class="kpi-card" style="border-left: 4px solid #ec4899;">
+            <div class="kpi-badge" style="background: rgba(236, 72, 153, 0.12); color: #ec4899;">📦</div>
+            <div class="kpi-title">Unidades Vendidas</div>
+            <div class="kpi-value">{{ total_unidades }}</div>
+            <div style="font-size: 12px; color: var(--adm-text-muted); margin-top: 4px;">Total ítems despachados</div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 1: Ranking de Productos Más Vendidos -->
+    <div class="module" style="margin-bottom: 28px;">
+        <h2 style="display: flex; align-items: center; justify-content: space-between;">
+            <span>🏆 Top Productos Más Vendidos en el Periodo</span>
+            <span style="font-size: 12px; font-weight: 500; text-transform: none; color: var(--adm-text-muted);">
+                Ordenado por unidades despachadas
+            </span>
+        </h2>
+        {% if top_productos %}
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th style="width: 50px; text-align: center;">#</th>
+                    <th>Código SKU</th>
+                    <th>Nombre del Producto</th>
+                    <th style="text-align: right;">Precio Unitario</th>
+                    <th style="text-align: center;">Unidades Vendidas</th>
+                    <th style="text-align: right;">Total Recaudado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in top_productos %}
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: var(--adm-primary);">{{ forloop.counter }}</td>
+                    <td><span style="font-family: monospace; font-weight: 600;">{{ prod.producto__codigo }}</span></td>
+                    <td><strong>{{ prod.producto__nombre }}</strong></td>
+                    <td style="text-align: right;">${{ prod.producto__precio|stringformat:",d" }} CLP</td>
+                    <td style="text-align: center;">
+                        <span style="display: inline-block; background: rgba(59, 130, 246, 0.12); color: #2563eb;
+                                     padding: 3px 10px; border-radius: 9999px; font-weight: 700;">
+                            {{ prod.unidades_vendidas }} un.
+                        </span>
+                    </td>
+                    <td style="text-align: right; font-weight: 700; color: #10b981;">
+                        ${{ prod.monto_generado|stringformat:",d" }} CLP
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="padding: 30px; text-align: center; color: var(--adm-text-muted);">
+            No se registraron ventas de productos en este rango de fechas.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SECCIÓN 2: Listado Detallado de Transacciones -->
+    <div class="module">
+        <h2 style="display: flex; align-items: center; justify-content: space-between;">
+            <span>📑 Detalle Individual de Transacciones (Boletas)</span>
+            <span style="font-size: 12px; font-weight: 500; text-transform: none; color: var(--adm-text-muted);">
+                Mostrando {{ ventas|length }} de {{ total_ventas }} registros
+            </span>
+        </h2>
+        {% if ventas %}
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>N° Folio</th>
+                    <th>Fecha y Hora</th>
+                    <th>Cliente</th>
+                    <th>Categoría</th>
+                    <th style="text-align: center;">Ítems</th>
+                    <th style="text-align: right;">Neto ($)</th>
+                    <th style="text-align: right;">IVA ($)</th>
+                    <th style="text-align: right;">Total ($)</th>
+                    <th class="no-print" style="text-align: center;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in ventas %}
+                <tr>
+                    <td>
+                        <a href="{% url 'admin:inventario_venta_change' v.id %}" style="font-family: monospace; font-weight: 700; color: var(--adm-primary); text-decoration: none;">
+                            {{ v.numero_boleta }}
+                        </a>
+                    </td>
+                    <td>{{ v.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <strong>{{ v.cliente.nombre }}</strong>
+                        <small style="display: block; color: var(--adm-text-muted);">RUT: {{ v.cliente.rut }}</small>
+                    </td>
+                    <td>
+                        {% if v.cliente.cliente_habitual %}
+                        <span style="padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: rgba(59, 130, 246, 0.12); color: #2563eb;">
+                            ★ Habitual
+                        </span>
+                        {% else %}
+                        <span style="padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; background: rgba(148, 163, 184, 0.12); color: #64748b;">
+                            Ocasional
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        <span style="font-weight: 600;">{{ v.detalles.count }} prod.</span>
+                    </td>
+                    <td style="text-align: right; color: var(--adm-text-muted);">${{ v.subtotal_neto|stringformat:",d" }}</td>
+                    <td style="text-align: right; color: #f59e0b;">${{ v.iva|stringformat:",d" }}</td>
+                    <td style="text-align: right; font-weight: 700; color: #10b981; font-size: 14px;">
+                        ${{ v.total|stringformat:",d" }} CLP
+                    </td>
+                    <td class="no-print" style="text-align: center;">
+                        <a href="{% url 'admin:inventario_venta_change' v.id %}" class="button" style="padding: 4px 10px; font-size: 11px; text-decoration: none;">
+                            Ver Detalle
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if total_transacciones_ocultas > 0 %}
+        <div style="padding: 16px; text-align: center; background: var(--adm-surface-alt); font-size: 13px; color: var(--adm-text-muted);">
+            Se muestran las primeras 100 transacciones. Hay {{ total_transacciones_ocultas }} registros adicionales.
+            Utilice el botón <strong>"Exportar CSV"</strong> para obtener el histórico completo.
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div style="padding: 40px; text-align: center; color: var(--adm-text-muted);">
+            <div style="font-size: 32px; margin-bottom: 10px;">🔍</div>
+            <div style="font-size: 15px; font-weight: 600;">No se encontraron ventas en el periodo seleccionado</div>
+            <div style="font-size: 13px; margin-top: 4px;">Modifique el rango de fechas para consultar otros registros.</div>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

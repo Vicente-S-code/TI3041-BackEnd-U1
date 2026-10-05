@@ -1,0 +1,837 @@
+/**
+ * Estilos Avanzados del Panel de Administración - VentaControl Pro
+ * =================================================================
+ * Proporciona un diseño moderno, atractivo y profesional tipo SaaS.
+ * Soporta dos temas completos:
+ * - Modo Blanco (Sol ☀️)
+ * - Modo Negro (Luna 🌙)
+ * Con botones atractivos, badges animados, tarjetas modernas y soporte de impresión.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* =====================================================================
+   1. VARIABLES CSS PARA TEMA BLANCO (LIGHT) Y TEMA NEGRO (DARK)
+   ===================================================================== */
+:root,
+html[data-theme="light"],
+html[data-admin-theme="light"] {
+    --adm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --adm-font-mono: 'JetBrains Mono', monospace;
+
+    /* Colores base: Modo Blanco */
+    --adm-bg: #f8fafc;
+    --adm-surface: #ffffff;
+    --adm-surface-alt: #f1f5f9;
+    --adm-surface-hover: #f8fafc;
+    --adm-border: #e2e8f0;
+    --adm-border-subtle: #edf2f7;
+
+    /* Tipografía */
+    --adm-text: #0f172a;
+    --adm-text-muted: #64748b;
+    --adm-text-dim: #94a3b8;
+
+    /* Primario y Acentos */
+    --adm-primary: #4f46e5;
+    --adm-primary-hover: #4338ca;
+    --adm-primary-light: rgba(79, 70, 229, 0.1);
+    --adm-primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+    --adm-accent-emerald: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    --adm-accent-rose: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    --adm-accent-amber: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+
+    /* Encabezado */
+    --adm-header-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --adm-header-text: #ffffff;
+
+    /* Sombras */
+    --adm-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --adm-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --adm-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    --adm-shadow-btn: 0 4px 14px rgba(79, 70, 229, 0.28);
+    --adm-shadow-btn-hover: 0 6px 20px rgba(79, 70, 229, 0.38);
+
+    /* Inputs */
+    --adm-input-bg: #ffffff;
+    --adm-input-border: #cbd5e1;
+    --adm-input-focus: #3b82f6;
+
+    /* Tablas */
+    --adm-table-header-bg: #f8fafc;
+    --adm-table-row-alt: #fcfdfe;
+    --adm-table-row-hover: #f1f5f9;
+}
+
+/* Variables para Modo Negro */
+html[data-theme="dark"],
+html[data-admin-theme="dark"] {
+    /* Colores base: Modo Negro */
+    --adm-bg: #0b0f19;
+    --adm-surface: #111827;
+    --adm-surface-alt: #1a2234;
+    --adm-surface-hover: #1e293b;
+    --adm-border: #1f2937;
+    --adm-border-subtle: #2d3748;
+
+    /* Tipografía */
+    --adm-text: #f9fafb;
+    --adm-text-muted: #9ca3af;
+    --adm-text-dim: #6b7280;
+
+    /* Primario y Acentos */
+    --adm-primary: #6366f1;
+    --adm-primary-hover: #818cf8;
+    --adm-primary-light: rgba(99, 102, 241, 0.15);
+    --adm-primary-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+    --adm-accent-emerald: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    --adm-accent-rose: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    --adm-accent-amber: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+
+    /* Encabezado */
+    --adm-header-bg: linear-gradient(135deg, #070a10 0%, #0d131f 100%);
+    --adm-header-text: #ffffff;
+
+    /* Sombras */
+    --adm-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+    --adm-shadow-md: 0 4px 10px rgba(0, 0, 0, 0.4);
+    --adm-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    --adm-shadow-btn: 0 4px 14px rgba(99, 102, 241, 0.4);
+    --adm-shadow-btn-hover: 0 6px 20px rgba(99, 102, 241, 0.55);
+
+    /* Inputs */
+    --adm-input-bg: #1f2937;
+    --adm-input-border: #374151;
+    --adm-input-focus: #60a5fa;
+
+    /* Tablas */
+    --adm-table-header-bg: #161e2e;
+    --adm-table-row-alt: #131b2e;
+    --adm-table-row-hover: #1e293b;
+}
+
+/* Transición suave entre temas */
+html.theme-transitioning,
+html.theme-transitioning * {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* =====================================================================
+   2. REINICIO Y ESTILOS GLOBALES
+   ===================================================================== */
+body {
+    font-family: var(--adm-font) !important;
+    background-color: var(--adm-bg) !important;
+    color: var(--adm-text) !important;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+#container {
+    background: transparent !important;
+    min-height: 100vh;
+}
+
+/* =====================================================================
+   3. ENCABEZADO Y BRANDING MODERNO
+   ===================================================================== */
+#header {
+    background: var(--adm-header-bg) !important;
+    color: var(--adm-header-text) !important;
+    padding: 14px 28px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+#branding {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#branding h1 {
+    font-family: var(--adm-font) !important;
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#branding h1 a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.nav-store-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff !important;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-left: 12px;
+}
+
+.nav-store-link:hover {
+    background: rgba(255, 255, 255, 0.22);
+    transform: translateY(-1px);
+}
+
+#user-tools {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px !important;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+#user-tools a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    transition: color 0.2s;
+    font-weight: 600;
+}
+
+#user-tools a:hover {
+    color: #93c5fd !important;
+    text-decoration: underline !important;
+}
+
+#user-tools button[type="submit"] {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+    color: #fca5a5 !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    cursor: pointer;
+    transition: all 0.2s ease !important;
+}
+
+#user-tools button[type="submit"]:hover {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* =====================================================================
+   4. BOTÓN DE CAMBIO DE COLOR (SOL / LUNA)
+   ===================================================================== */
+.admin-theme-switch,
+.theme-toggle-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 9999px !important;
+    padding: 6px 14px !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    user-select: none;
+}
+
+.admin-theme-switch:hover,
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.26) !important;
+    transform: translateY(-1px) scale(1.02) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Estilos específicos para el Sol (☀️ Blanco) */
+.theme-icon-sun svg,
+svg.icon-sun {
+    width: 20px;
+    height: 20px;
+    filter: drop-shadow(0 0 6px #f59e0b);
+    animation: spinSlow 20s linear infinite;
+}
+
+@keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Estilos específicos para la Luna (🌙 Negro) */
+.theme-icon-moon svg,
+svg.icon-moon {
+    width: 20px;
+    height: 20px;
+    filter: drop-shadow(0 0 6px #818cf8);
+    transform: rotate(-15deg);
+}
+
+/* Botón flotante de cambio de tema */
+.floating-theme-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    background: var(--adm-surface);
+    border: 1px solid var(--adm-border);
+    color: var(--adm-text);
+    border-radius: 9999px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--adm-shadow-lg);
+    transition: all 0.25s ease;
+}
+
+.floating-theme-toggle:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+/* =====================================================================
+   5. BOTONES ATRACTIVOS Y MODERNOS
+   ===================================================================== */
+/* Botón Principal (Guardar, Enviar, Filtrar) */
+.button.default,
+input[type="submit"].default,
+.btn-primary,
+.submit-row input.default {
+    background: var(--adm-primary-gradient) !important;
+    color: #ffffff !important;
+    font-family: var(--adm-font) !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 10px 22px !important;
+    border-radius: 10px !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: var(--adm-shadow-btn) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    letter-spacing: 0.01em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+}
+
+.button.default:hover,
+input[type="submit"].default:hover,
+.btn-primary:hover,
+.submit-row input.default:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--adm-shadow-btn-hover) !important;
+    filter: brightness(1.08) !important;
+}
+
+.button.default:active,
+input[type="submit"].default:active,
+.btn-primary:active {
+    transform: translateY(0) !important;
+    box-shadow: var(--adm-shadow-sm) !important;
+}
+
+/* Botones Secundarios */
+.button,
+input[type="submit"],
+.btn-secondary {
+    background: var(--adm-surface) !important;
+    color: var(--adm-text) !important;
+    font-family: var(--adm-font) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 9px 18px !important;
+    border-radius: 10px !important;
+    border: 1px solid var(--adm-border) !important;
+    cursor: pointer !important;
+    box-shadow: var(--adm-shadow-sm) !important;
+    transition: all 0.2s ease !important;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+.btn-secondary:hover {
+    background: var(--adm-surface-alt) !important;
+    border-color: var(--adm-border-subtle) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Botón Añadir (+ Añadir) */
+.addlink,
+.btn-success {
+    background: var(--adm-accent-emerald) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 9px 18px !important;
+    border-radius: 10px !important;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.addlink:hover,
+.btn-success:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.42) !important;
+    filter: brightness(1.06) !important;
+}
+
+/* Botón Eliminar / Peligro */
+.deletelink,
+.btn-danger,
+.submit-row a.deletelink {
+    background: var(--adm-accent-rose) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 9px 18px !important;
+    border-radius: 10px !important;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.deletelink:hover,
+.btn-danger:hover,
+.submit-row a.deletelink:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(239, 68, 68, 0.45) !important;
+    filter: brightness(1.08) !important;
+}
+
+/* Botón Reporte */
+.btn-report {
+    background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 9px 18px !important;
+    border-radius: 10px !important;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.32) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.btn-report:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(14, 165, 233, 0.45) !important;
+}
+
+/* Barra de herramientas superior (.object-tools) */
+.object-tools {
+    display: flex !important;
+    gap: 10px !important;
+    margin-bottom: 20px !important;
+}
+
+.object-tools li {
+    list-style: none !important;
+}
+
+.object-tools a {
+    font-family: var(--adm-font) !important;
+}
+
+/* =====================================================================
+   6. BREADCRUMBS Y NAVEGACIÓN
+   ===================================================================== */
+nav[aria-label="Breadcrumbs"],
+.breadcrumbs {
+    background: var(--adm-surface) !important;
+    border-bottom: 1px solid var(--adm-border) !important;
+    padding: 12px 28px !important;
+    font-size: 13px !important;
+    color: var(--adm-text-muted) !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumbs a {
+    color: var(--adm-primary) !important;
+    text-decoration: none !important;
+    font-weight: 600;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline !important;
+}
+
+/* =====================================================================
+   7. CONTENIDO PRINCIPAL, TARJETAS Y MÓDULOS
+   ===================================================================== */
+#content {
+    padding: 28px !important;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.module {
+    background: var(--adm-surface) !important;
+    border: 1px solid var(--adm-border) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--adm-shadow-md) !important;
+    margin-bottom: 24px !important;
+    overflow: hidden !important;
+}
+
+.module h2,
+.module caption {
+    background: var(--adm-surface-alt) !important;
+    color: var(--adm-text) !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 14px 20px !important;
+    border-bottom: 1px solid var(--adm-border) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* =====================================================================
+   8. TABLAS Y RESULTADOS
+   ===================================================================== */
+#result_list,
+table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: var(--adm-surface) !important;
+    color: var(--adm-text) !important;
+    border: 1px solid var(--adm-border) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+#result_list th,
+table th {
+    background: var(--adm-table-header-bg) !important;
+    color: var(--adm-text-muted) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 12px 16px !important;
+    border-bottom: 2px solid var(--adm-border) !important;
+}
+
+#result_list th a,
+table th a {
+    color: var(--adm-text-muted) !important;
+    text-decoration: none !important;
+}
+
+#result_list th a:hover,
+table th a:hover {
+    color: var(--adm-text) !important;
+}
+
+#result_list td,
+table td {
+    padding: 14px 16px !important;
+    border-bottom: 1px solid var(--adm-border) !important;
+    font-size: 13px !important;
+    vertical-align: middle !important;
+}
+
+#result_list tr:nth-child(even) td {
+    background: var(--adm-table-row-alt) !important;
+}
+
+#result_list tr:hover td,
+table tr:hover td {
+    background: var(--adm-table-row-hover) !important;
+}
+
+/* =====================================================================
+   9. FORMULARIOS, INPUTS Y SELECTORES
+   ===================================================================== */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+    background-color: var(--adm-input-bg) !important;
+    color: var(--adm-text) !important;
+    border: 1px solid var(--adm-input-border) !important;
+    border-radius: 8px !important;
+    padding: 9px 14px !important;
+    font-size: 13px !important;
+    font-family: var(--adm-font) !important;
+    transition: all 0.2s ease !important;
+    outline: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--adm-input-focus) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+fieldset {
+    background: var(--adm-surface) !important;
+    border: 1px solid var(--adm-border) !important;
+    border-radius: 14px !important;
+    padding: 20px !important;
+    margin-bottom: 24px !important;
+    box-shadow: var(--adm-shadow-sm) !important;
+}
+
+fieldset h2 {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--adm-text) !important;
+    margin-bottom: 16px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid var(--adm-border) !important;
+}
+
+.form-row {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid var(--adm-border-subtle) !important;
+}
+
+/* =====================================================================
+   10. BUSCADOR Y FILTROS LATERALES
+   ===================================================================== */
+#toolbar {
+    background: var(--adm-surface) !important;
+    border: 1px solid var(--adm-border) !important;
+    border-radius: 12px !important;
+    padding: 14px 20px !important;
+    margin-bottom: 20px !important;
+    box-shadow: var(--adm-shadow-sm) !important;
+}
+
+#searchbar {
+    width: 320px !important;
+    border-radius: 20px !important;
+    padding-left: 16px !important;
+}
+
+#changelist-filter {
+    background: var(--adm-surface) !important;
+    border-left: 1px solid var(--adm-border) !important;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    box-shadow: var(--adm-shadow-sm) !important;
+}
+
+#changelist-filter h2 {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    color: var(--adm-text) !important;
+    border-bottom: 2px solid var(--adm-primary) !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 16px !important;
+}
+
+#changelist-filter a {
+    color: var(--adm-text-muted) !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    display: block !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    transition: all 0.15s ease !important;
+}
+
+#changelist-filter a:hover {
+    color: var(--adm-primary) !important;
+    background: var(--adm-surface-alt) !important;
+}
+
+#changelist-filter li.selected a {
+    background: var(--adm-primary-light) !important;
+    color: var(--adm-primary) !important;
+    font-weight: 700 !important;
+}
+
+/* =====================================================================
+   11. INLINES (DETALLE DE VENTA)
+   ===================================================================== */
+.inline-group {
+    background: var(--adm-surface) !important;
+    border: 1px solid var(--adm-border) !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    margin-bottom: 24px !important;
+    box-shadow: var(--adm-shadow-md) !important;
+}
+
+.inline-group h2 {
+    background: var(--adm-surface-alt) !important;
+    color: var(--adm-text) !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 14px 20px !important;
+    border-bottom: 1px solid var(--adm-border) !important;
+}
+
+.inline-related table {
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+.add-row a {
+    color: #10b981 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 10px 16px !important;
+    text-decoration: none !important;
+}
+
+.add-row a:hover {
+    text-decoration: underline !important;
+}
+
+/* =====================================================================
+   12. TARJETAS KPI DASHBOARD Y REPORTE
+   ===================================================================== */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.kpi-card {
+    background: var(--adm-surface);
+    border: 1px solid var(--adm-border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--adm-shadow-md);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--adm-shadow-lg);
+}
+
+.kpi-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--adm-text-muted);
+    margin-bottom: 6px;
+}
+
+.kpi-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--adm-text);
+    font-family: var(--adm-font);
+}
+
+.kpi-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* =====================================================================
+   13. ESTILOS DE IMPRESIÓN PARA REPORTE (@media print)
+   ===================================================================== */
+@media print {
+    #header,
+    .breadcrumbs,
+    #changelist-filter,
+    .object-tools,
+    .floating-theme-toggle,
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt !important;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .kpi-card {
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        padding: 10px !important;
+    }
+
+    table {
+        border: 1px solid #ddd !important;
+    }
+
+    table th, table td {
+        border: 1px solid #eee !important;
+        padding: 8px !important;
+    }
+}

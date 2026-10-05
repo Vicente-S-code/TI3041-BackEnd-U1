@@ -1,0 +1,27 @@
+{% load i18n %}
+<!-- Botón Selector de Tema Sol ☀️ (Blanco) / Luna 🌙 (Negro) -->
+<button type="button" class="theme-toggle-btn admin-theme-switch" id="header-theme-toggle" aria-label="Cambiar Tema (Blanco / Negro)" title="Alternar entre Modo Blanco (Sol) y Modo Negro (Luna)">
+    <!-- Ícono del SOL para Modo Blanco -->
+    <span class="theme-icon-sun" style="display: inline-flex; align-items: center;">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" fill="#f59e0b" stroke="#d97706"></circle>
+            <line x1="12" y1="1" x2="12" y2="3" stroke="#f59e0b" stroke-width="2.5"></line>
+            <line x1="12" y1="21" x2="12" y2="23" stroke="#f59e0b" stroke-width="2.5"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="#f59e0b" stroke-width="2.5"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="#f59e0b" stroke-width="2.5"></line>
+            <line x1="1" y1="12" x2="3" y2="12" stroke="#f59e0b" stroke-width="2.5"></line>
+            <line x1="21" y1="12" x2="23" y2="12" stroke="#f59e0b" stroke-width="2.5"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="#f59e0b" stroke-width="2.5"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="#f59e0b" stroke-width="2.5"></line>
+        </svg>
+    </span>
+
+    <!-- Ícono de la LUNA para Modo Negro -->
+    <span class="theme-icon-moon" style="display: none; align-items: center;">
+        <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#818cf8" stroke="#6366f1"></path>
+        </svg>
+    </span>
+
+    <span class="theme-label-text" style="font-weight: 700; font-size: 12px; margin-left: 2px;">Modo Blanco</span>
+</button>

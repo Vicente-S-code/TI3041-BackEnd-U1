@@ -180,3 +180,100 @@ class VistasHttpTest(TestCase):
             with self.subTest(ruta=ruta):
                 resp = c.get(ruta)
                 self.assertEqual(resp.status_code, 200, f"Error en la ruta: {ruta}")
+
+
+class AdminFeaturesTest(TestCase):
+    """Pruebas para las nuevas funcionalidades del panel administrativo."""
+
+    def setUp(self):
+        from django.contrib.auth.models import User
+        self.client = Client()
+        self.superuser = User.objects.create_superuser(
+            username='admin_test',
+            email='admin@test.cl',
+            password='testpassword123'
+        )
+        self.client.login(username='admin_test', password='testpassword123')
+
+        self.producto1 = Producto.objects.create(
+            nombre="Bebida Cola 1.5L",
+            codigo="BEB-01",
+            precio=2000,
+            stock=50
+        )
+        self.producto2 = Producto.objects.create(
+            nombre="Papas Fritas 200g",
+            codigo="SNK-01",
+            precio=1500,
+            stock=4
+        )
+        self.cliente = Cliente.objects.create(
+            rut="11.222.333-4",
+            nombre="Cliente Admin Test",
+            cliente_habitual=True
+        )
+
+    def test_admin_index_kpis(self):
+        """Verifica que el dashboard administrativo cargue con status 200 y contenga los KPIs."""
+        response = self.client.get(reverse('admin:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Panel Administrativo VentaControl Pro")
+        self.assertContains(response, "Productos en Catálogo")
+
+    def test_admin_venta_changelist(self):
+        """Verifica el listado de ventas en admin y el enlace al reporte."""
+        venta = Venta.objects.create(cliente=self.cliente, total=3500)
+        DetalleVenta.objects.create(venta=venta, producto=self.producto1, cantidad=1, subtotal=2000)
+        DetalleVenta.objects.create(venta=venta, producto=self.producto2, cantidad=1, subtotal=1500)
+
+        response = self.client.get(reverse('admin:inventario_venta_changelist'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Reporte por Fechas")
+        self.assertContains(response, "Resumen Financiero del Filtro Actual")
+
+    def test_admin_venta_reporte_view(self):
+        """Verifica la vista del reporte financiero por rango de fechas."""
+        venta = Venta.objects.create(cliente=self.cliente, total=5000)
+        DetalleVenta.objects.create(venta=venta, producto=self.producto1, cantidad=2, subtotal=4000)
+
+        response = self.client.get(reverse('admin:inventario_venta_reporte'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Reporte Financiero de Ventas")
+        self.assertContains(response, "Top Productos Más Vendidos")
+        self.assertContains(response, "Recaudación Total Bruta")
+
+    def test_admin_venta_reporte_csv_export(self):
+        """Verifica la exportación del reporte de ventas a formato CSV."""
+        venta = Venta.objects.create(cliente=self.cliente, total=2000)
+        DetalleVenta.objects.create(venta=venta, producto=self.producto1, cantidad=1, subtotal=2000)
+
+        url = reverse('admin:inventario_venta_reporte') + '?export=csv'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/csv; charset=utf-8')
+        self.assertTrue('attachment;' in response['Content-Disposition'])
+        self.assertTrue(venta.numero_boleta in response.content.decode('utf-8'))
+
+    def test_recalculo_total_desde_inlines(self):
+        """Verifica que el método save_related del ModelAdmin recalcula automáticamente el Total."""
+        from django.contrib.admin.sites import AdminSite
+        from inventario.admin import VentaAdmin
+        from unittest.mock import MagicMock
+
+        venta_admin = VentaAdmin(Venta, AdminSite())
+        venta = Venta.objects.create(cliente=self.cliente, total=0)
+        DetalleVenta.objects.create(venta=venta, producto=self.producto1, cantidad=2) # subtotal 4000
+        DetalleVenta.objects.create(venta=venta, producto=self.producto2, cantidad=3) # subtotal 4500
+
+        mock_form = MagicMock()
+        mock_form.instance = venta
+
+        mock_formset = MagicMock()
+        mock_formset.save.return_value = []
+
+        venta_admin.save_related(MagicMock(), mock_form, [mock_formset], change=True)
+        venta.refresh_from_db()
+
+        # El total debe ser exactamente 4000 + 4500 = 8500
+        self.assertEqual(venta.total, 8500)
+

@@ -211,7 +211,9 @@ class Venta(models.Model):
     @property
     def numero_boleta(self):
         """Genera un folio con formato de 6 dígitos para la boleta comercial."""
-        return f"BOL-{self.id:06d}"
+        if self.id:
+            return f"BOL-{self.id:06d}"
+        return "BOL-(Pendiente)"
 
     @property
     def subtotal_neto(self):
