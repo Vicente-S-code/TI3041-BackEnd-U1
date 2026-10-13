@@ -102,13 +102,15 @@ class ClienteAdmin(admin.ModelAdmin):
                 '<span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; '
                 'border-radius: 9999px; font-size: 11px; font-weight: 600; '
                 'background-color: rgba(59, 130, 246, 0.12); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.3);">'
-                '★ Habitual</span>'
+                '{}</span>',
+                '★ Habitual'
             )
         return format_html(
             '<span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; '
             'border-radius: 9999px; font-size: 11px; font-weight: 500; '
             'background-color: rgba(148, 163, 184, 0.12); color: #64748b; border: 1px solid rgba(148, 163, 184, 0.3);">'
-            'Ocasional</span>'
+            '{}</span>',
+            'Ocasional'
         )
 
     @admin.display(description="Boletas Registradas")
