@@ -17,7 +17,6 @@ from . import views
 urlpatterns = [
     # 1. Dashboard principal
     path('', views.dashboard, name='dashboard'),
-
     # 2. Módulo de Productos e Inventario
     path('productos/', views.producto_list, name='producto_list'),
     path('productos/nuevo/', views.producto_create, name='producto_create'),

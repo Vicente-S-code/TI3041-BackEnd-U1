@@ -14,6 +14,7 @@ admin.site.site_title = "VentaControl Pro"
 admin.site.index_title = "Panel de Gestión y Auditoría"
 
 urlpatterns = [
+    path("api-auth/", include("rest_framework.urls")),
     path('admin/', admin.site.urls),
     path('', include('inventario.urls')),
 ]

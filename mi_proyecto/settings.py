@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     # Aplicaciones del proyecto
     'inventario',
     'bienvenida',
+    'rest_framework',
 ]
 
 # Configuración del paquete django-crispy-forms con Tailwind CSS
