@@ -8,3 +8,4 @@ whitenoise
 djangorestframework
 markdown
 django-filter
+djangorestframework-simplejwt

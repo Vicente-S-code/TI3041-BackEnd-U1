@@ -93,3 +93,4 @@ python manage.py test inventario
 
 - **Web:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - **Admin:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) (Usuario: `admin` | Clave: `admin123`)
+- **Vercel:** [ti-3041-back-end-u1.vercel.app](ti-3041-back-end-u1.vercel.app)
